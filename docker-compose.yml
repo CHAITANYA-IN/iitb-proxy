@@ -8,5 +8,6 @@ services:
       - '8005:80'
       - '3500:3500'
       - '8006:81'
+      - '8007:443'
     volumes: 
-      - $PWD/www:/var/www/html
+      - ./www:/var/www/

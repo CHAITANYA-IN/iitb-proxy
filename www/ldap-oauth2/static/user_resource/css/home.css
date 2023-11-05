@@ -1,0 +1,49 @@
+fieldset.fieldset-border {
+    padding: 10px;
+    border: darkgray 2px solid;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+legend.marginless {
+    margin-bottom: 5px;
+}
+
+.input-group .form-control:first-child {
+    border-top-right-radius: 4px !important;
+    border-bottom-right-radius: 4px !important;
+}
+
+.backgroundless-input-group-addon {
+    background-color: inherit;
+    border: white 0 solid;
+}
+
+.image-glyphicon-wrapper{
+    position: relative;
+}
+
+.image-glyphicon-wrapper .pp-upload-button {
+    position: absolute;
+    top: 39px;
+    left: 39px;
+    font-size: 50px;
+}
+
+.pp-upload-button {
+    opacity: 0.6;
+}
+
+.pp-upload-button:hover {
+    opacity: 1;
+}
+
+.pp-upload-input {
+    opacity: 0;
+    height: 0;
+    width: 0;
+    position: absolute;
+    top: -100px;
+    left: -100px;
+}

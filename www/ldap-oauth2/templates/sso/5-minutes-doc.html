@@ -1,0 +1,63 @@
+{% extends 'sso/root.html' %}
+{% load static %}
+{% load absolute_url %}
+
+{% block title %}
+    Documentation - {{ active_tab.name }}
+{% endblock %}
+
+{% block cssLinks %}
+    <link rel="stylesheet" type="text/css" href="{% static 'sso/css/doc.css' %}"/>
+{% endblock %}
+
+{% block body %}
+
+    <h4>Writing a new application to is quite easy since the whole implementation is following the
+        <a href="https://tools.ietf.org/html/rfc6749" target="_blank">RFC 6749</a> for OAuth 2.0</h4>
+    <h4><a href="http://tutorials.jenkov.com/oauth2/index.html" target="_blank">Here</a> is a nice tutorial for OAuth
+        2.0</h4>
+    <h3 style="color: red">
+        <b>IMPORTANT: READ BELOW BEFORE CONTINUING!!!</b> <br/> <br/>
+
+        Profiles is intended to be used only by applications running on the server infrastructure
+        of IIT Bombay Students' Gymkhana. If your application does not run on Gymkhana servers, DO NOT use Profiles, and
+	check Computer Center's website for details on developing applications with IITB SSO integration. <br/><br/>
+
+        If the above condition is not satisfied, your application may be deleted and your account blocked from
+	Gymkhana services without prior notice. For any details, contact mlc@iitb.ac.in
+    </h3>
+
+    <ul id="tabs" class="nav nav-tabs" role="tablist" style="margin-top: 25px;">
+        {% for tab in tabs %}
+            <li role="presentation" {% if tab.is_active %}class="active"{% endif %}>
+                <a href="#{{ tab.tab }}" id="{{ tab.tab }}-tab" role="tab" data-toggle="tab" data-url="{{ tab.url }}"
+                   aria-controls="{{ tab.tab }}" data-title="Documentation - {{ tab.name }}">{{ tab.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div id="myTabContent" class="tab-content">
+
+        {% for tab in tabs %}
+            <div role="tabpanel" class="tab-pane fade in {% if tab.is_active %}active{% endif %}" id="{{ tab.tab }}"
+                 aria-labelledby="{{ tab.tab }}-tab">
+                {% with tab_template='sso/doc_includes/'|add:tab.template_name %}
+                    {% include tab_template %}
+                {% endwith %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block jsLinks %}
+    <script src="{% static 'sso/js/anchor.min.js' %}" type="application/javascript"></script>
+    <script type="application/javascript">
+        anchors.add('h3');
+    </script>
+    <script src="{% static 'widget/js/login.js' %}" type="application/javascript"></script>
+    <script type="application/javascript">
+        window.history.pushState({}, '', '{{ active_tab.url }}');
+        var is_widget_loaded = {% if active_tab.tab == 'widgets'  %}true{% else %}false{% endif %};
+    </script>
+    <script src="{% static 'sso/js/doc.js' %}" type="application/javascript"></script>
+{% endblock %}
