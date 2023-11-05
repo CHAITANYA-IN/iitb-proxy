@@ -31,3 +31,4 @@ environment.yml
 .coverage
 htmlcov
 sitemap.xml
+wmcta@10.*
