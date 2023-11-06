@@ -1,3 +1,6 @@
+import ldap3, ssl
+from ldap3.core.tls import Tls
+
 import logging
 
 import json
@@ -60,12 +63,63 @@ class UserHomePageView(LoginRequiredMixin, View):
     def get(self, request):
         user = request.user
 
+        # Search filter for CSE LDAP
+        try:
+            search_filter = getattr(user, 'username')
+        except AttributeError:
+            logger.error("User does not have a username, cannot search CSE LDAP")
+
+        tls_configuration = Tls(validate=ssl.CERT_NONE, version=ssl.PROTOCOL_TLSv1_2)
+
+        # CSE LDAP Server Configuration
+        ldap_servers = [
+            "ldap://1.ldap.cse.iitb.ac.in",
+            "ldap://2.ldap.cse.iitb.ac.in",
+            "ldap://3.ldap.cse.iitb.ac.in",
+            "ldap://4.ldap.cse.iitb.ac.in"
+        ]
+        ldap_port = 389
+        base_dn = "dc=cse,dc=iitb,dc=ac,dc=in"
+
+        # Construct HTML for CSE LDAP details of the user
+        cse_ldap_details = ""
+
+        # Fetch CSE LDAP Details of the user
+        for ldap_server in ldap_servers:
+            try:
+                server = ldap3.Server(ldap_server, port=ldap_port, tls=tls_configuration, get_info=ldap3.ALL)
+                connection = ldap3.Connection(server, auto_bind=True)
+
+                connection.search(search_base=base_dn, search_filter=search_filter, attributes=ldap3.ALL_ATTRIBUTES)
+                if connection.entries:
+                    logger.info(f'Entries({connection.entries}): {len(connection.entries)}')
+
+                    for entry in connection.entries:
+                        logger.info(f'Entry: {entry}')
+                        cse_ldap_details = entry.entry_attributes_as_dict
+                        logger.info(f'Entry Attributes: {cse_ldap_details}')
+                else:
+                    logger.info("User not found in LDAP on server:", ldap_server)
+                    connection.unbind()
+                    continue
+                connection.unbind()
+                break
+            except Exception as e:
+                logger.error(f"Error connecting to server {ldap_server}: {str(e)}")
+
+        # Logging LDAP details of the user
         logger.info('-v'*30)
         logger.info(f"{'-'*10}CC LDAP USER DETAILS{'-'*10}")
 
         userDict = attr_to_dict(user)
         for key in userDict:
             logger.info(f"{key}: {userDict[key]}")
+
+        logger.info('')
+        logger.info(f"{'-'*10}CSE LDAP USER DETAILS{'-'*10}")
+
+        for key in cse_ldap_details:
+            logger.info(f"{key}: {cse_ldap_details[key]}")
 
         logger.info('')
         logger.info('-^'*30)
