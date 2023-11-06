@@ -15,7 +15,7 @@ RUN ln /usr/bin/python3 /usr/bin/python
 #RUN python3.9 get-pip.py
 #RUN apt-get install -y python-venv
 RUN apt-get install -y apache2-dev
-ADD ./www/ldap-oauth2/env.txt /tmp/env.txt
+ADD ./www/ldap-oauth2/requirements.txt /tmp/env.txt
 #RUN apt-get -y install python3-pip
 #RUN ln -sf usr/bin/pip3 /usr/bin/pip
 #RUN pip install --upgrade pip
