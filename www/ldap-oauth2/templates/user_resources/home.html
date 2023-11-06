@@ -230,6 +230,19 @@
                 </fieldset>
             </form>
 
+            <div>
+                <h4>CSE LDAP Details</h4>
+                <p>
+                    {% if cse_ldap_details %}
+                        {% for attribute, value in cse_ldap_details.items() %}
+                            <b>{{ attribute }}:</b> {{ value }} 
+                            <br/>
+                        {% endfor %}
+                    {% else %}
+                            <b>Not available</b>
+                    {% endif %}
+                </p>
+            </div>
 
         </div>
     </div>

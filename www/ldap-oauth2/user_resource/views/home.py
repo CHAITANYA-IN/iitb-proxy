@@ -152,6 +152,7 @@ class UserHomePageView(LoginRequiredMixin, View):
             'ldap_number': ldap_number,
             'roll_number': roll_number,
             'user_profile_picture': model_field_media_url(user.userprofile.profile_picture),
+            'cse_ldap_details': cse_ldap_details,
         }
         request_context.update(forms_context_dict)
 
