@@ -1,3 +1,5 @@
+import logging
+
 import json
 from collections import defaultdict
 
@@ -18,6 +20,7 @@ from core.utils import attr_to_dict
 from ..forms import InstituteAddressForm, ProfilePictureForm, ProgramForm, SexUpdateForm
 from ..models import ContactNumber, InstituteAddress, Program, SecondaryEmail
 
+logger = logging.getLogger(__name__)
 
 class UserApplicationListView(LoginRequiredMixin, ListView):
     template_name = 'user_resources/application_list.html'
@@ -56,6 +59,16 @@ class ApplicationRevokeView(LoginRequiredMixin, View):
 class UserHomePageView(LoginRequiredMixin, View):
     def get(self, request):
         user = request.user
+
+        logger.info('-v'*30)
+        logger.info(f"{'-'*10}CC LDAP USER DETAILS{'-'*10}")
+
+        userDict = attr_to_dict(user)
+        for key in userDict:
+            logger.info(f"{key}: {userDict[key]}")
+
+        logger.info('')
+        logger.info('-^'*30)
 
         forms_context_dict = {}
         form_class_context_key_user_field_tuples = [
