@@ -65,7 +65,7 @@ class UserHomePageView(LoginRequiredMixin, View):
 
         # Search filter for CSE LDAP
         try:
-            search_filter = getattr(user, 'username')
+            search_filter = f"(employeeNumber={getattr(user, 'username')})"
         except AttributeError:
             logger.error("User does not have a username, cannot search CSE LDAP")
 
