@@ -1,5 +1,7 @@
 FROM ubuntu
 
+ARG APACHE_CERT_PATH
+ARG APACHE_KEY_PATH
 #RUN RUN chown -R www-data:www-data
 RUN apt-get update
 RUN apt-get install -y apt-utils vim curl apache2 apache2-utils
@@ -40,10 +42,14 @@ RUN a2enmod ssl
 RUN a2enmod rewrite
 #RUN service apache2 restart
 RUN mkdir /etc/apache2/certs
-ADD ./apache.crt /etc/apache2/certs/apache.crt
-ADD ./apache.key /etc/apache2/certs/apache.key
+ADD $APACHE_CERT_PATH /etc/apache2/certs/apache.crt
+ADD $APACHE_KEY_PATH /etc/apache2/certs/apache.key
+COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
+
 #RUN chown -R www-data:www-data /var/www
 USER root
 RUN chmod -R 777 /var/www
+RUN chmod +x /usr/local/bin/entrypoint.sh
 EXPOSE 80 3500 443
+ENTRYPOINT ["entrypoint.sh"]
 CMD ["apache2ctl", "-D", "FOREGROUND"]

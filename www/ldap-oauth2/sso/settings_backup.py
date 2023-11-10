@@ -55,6 +55,7 @@ INSTALLED_APPS = (
     'user_resource',
     'core',
     'widget',
+    'ldap3',
 )
 
 MIDDLEWARE = (

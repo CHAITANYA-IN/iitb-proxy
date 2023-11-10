@@ -2,7 +2,12 @@ version: "2"
 
 services: 
   django-apache2:
-    build: .
+    build:
+      context: .
+      args:
+        - APACHE_CERT_PATH=local/apache.crt
+        - APACHE_KEY_PATH=local/apache.key
+        - local/.env
     container_name: django-apache2
     ports:
       - '8005:80'
@@ -11,3 +16,5 @@ services:
       - '8007:443'
     volumes: 
       - ./www:/var/www/
+    env_file:
+      - local/.env
