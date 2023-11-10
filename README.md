@@ -2,7 +2,18 @@
 
 ## Run the project
 
-Create a .env file defining following variables:
+### Pre-requisites
+
+#### Set the environment variables
+
+Create a directory `local` and `.env` file inside
+
+```sh
+mkdir ./local
+touch ./local/.env
+```
+
+.env file should set the following variables:
 
 ```sh
 OIDC_CLIENT_ID=""
@@ -13,7 +24,30 @@ SECRET_KEY=""
 APACHE_CERTIFICATE_SIGNING_REQUEST_SUBJECT=""
 ```
 
-## Docker project for Django and Apache2
+Make sure *.sh files have executable permission, use the following command to give them executable permission
+
+```sh
+chmod +x *.sh
+```
+
+### Start the project
+
+```sh
+./run.sh
+```
+
+> If you want to run the docker containers in detach mode,
+> Add `-d` option to the docker-compose command in `run.sh`
+
+To clean the production files and directories, run
+
+```sh
+./clean.sh
+```
+
+## Developer
+
+### Information on dockerizing apache + django project
 
 This is a docker project to create a container with Python3, Django and Apache2. All configurations, along with a sample django project are cerated.
 
