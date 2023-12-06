@@ -262,7 +262,7 @@ X_FRAME_OPTIONS = 'DENY'
 INTERNAL_SECRETS = []
 
 USSO_BASE = 'https://sso-uat.iitb.ac.in'
-USSO_RU = False
+USSO_RU = True
 
 # Email IDs to notify when a client is verified
 # VERIFIED_NOTIF_EMAIL = ['mlc@iitb.ac.in', 'ninad@iitb.ac.in']
