@@ -15,7 +15,7 @@ function addScript(src, callback) {
 function SSO_JS(init) {
     'use strict';
 
-    this.iframe_base_url = '//gymkhana.iitb.ac.in/sso/widget/login/?';
+    this.iframe_base_url = '//localhost/sso/widget/login/?';
 
     this.iframe = null;
 
@@ -63,8 +63,8 @@ function SSO_JS(init) {
                     [this.config_keys, this.config]
                 ]
             );
-            var upstreamRedirect = 'https://gymkhana.iitb.ac.in/profiles/user/redir?logout=' +
-					encodeURIComponent('https://gymkhana.iitb.ac.in/profiles/oauth/authorize/?' + query);
+            var upstreamRedirect = 'https://localhost/user/redir?logout=' +
+					encodeURIComponent('https://localhost/oauth/authorize/?' + query);
 
             var upstreamOpts = {
                 width: '100%',

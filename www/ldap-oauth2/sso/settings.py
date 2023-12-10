@@ -16,8 +16,6 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-#import ldap
-#from django_auth_ldap.config import LDAPSearch
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -25,7 +23,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1"]
+ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ["127.0.0.1"]
 
 CACHES = {
     'default': {
@@ -50,7 +49,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'oauth2_provider',
     'simple_history',
-    'account',
+    'account_handler',
     'application',
     'user_resource',
     'core',
@@ -269,3 +268,5 @@ USSO_RU = True
 VERIFIED_NOTIF_EMAIL = ['akg@iitb.ac.in']
 
 from .settings_user import *  # noqa isort:skip
+# from .cse_ldap_settings import *
+from .oidc_settings import *

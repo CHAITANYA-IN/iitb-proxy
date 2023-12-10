@@ -14,7 +14,9 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from user_resource.models import InstituteAddress
-from account.models import UserProfile
+from account_handler.models import UserProfile
+# from core.models import UserProfile
+
 
 class InternalViewset(viewsets.GenericViewSet):
 
@@ -26,7 +28,8 @@ class InternalViewset(viewsets.GenericViewSet):
         if 'secret' not in request.data or request.data['secret'] not in settings.INTERNAL_SECRETS:
             return Response({})
 
-        queryset = InstituteAddress.objects.filter(hostel=request.data['hostel'])
+        queryset = InstituteAddress.objects.filter(
+            hostel=request.data['hostel'])
         queryset = queryset.filter(
             Q(user__program__graduation_year__isnull=False) &
             Q(user__program__graduation_year__gte=int(datetime.datetime.now().year))
@@ -40,11 +43,10 @@ class InternalViewset(viewsets.GenericViewSet):
 
         return Response([{
             "username": x.user.username,
-            "name": "%s %s" % (x.user.first_name , x.user.last_name),
+            "name": "%s %s" % (x.user.first_name, x.user.last_name),
             "hostel": x.hostel,
             "room": x.room
         } for x in queryset])
-
 
     @method_decorator(csrf_exempt)
     @action(methods=['GET'], detail=False)
@@ -57,4 +59,3 @@ class InternalViewset(viewsets.GenericViewSet):
             return redirect(user.profile_picture.url)
 
         return redirect(static('placeholder.png'))
-

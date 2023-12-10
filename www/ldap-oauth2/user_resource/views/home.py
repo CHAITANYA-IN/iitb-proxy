@@ -63,13 +63,31 @@ class UserHomePageView(LoginRequiredMixin, View):
     def get(self, request):
         user = request.user
 
+        # cse_ldap_details = {}
+        # logger.info(f"{'-'*10}Authenticating CSE User {user.username}{'-'*10}")
+
+        # cse_user = authenticate(request, backend='django_auth_ldap.backend.LDAPBackend', username=user.username)
+        # if(cse_user is not None):
+        #     logger.info('')
+        #     logger.info(f"{'-'*10}CSE User authenticated{'-'*10}")
+
+        #     for key, value in request.user.__dict__.items():
+        #         if('cse_ldap_' in key):
+        #             cse_ldap_details[key] = value
+        #         logger.info(f"{key}: {value}")
+
+        #     logger.info('')
+        #     logger.info('-^'*30)
+
         # Search filter for CSE LDAP
         try:
             search_filter = f"(employeeNumber={getattr(user, 'username')})"
         except AttributeError:
-            logger.error("User does not have a username, cannot search CSE LDAP")
+            logger.error(
+                "User does not have a username, cannot search CSE LDAP")
 
-        tls_configuration = Tls(validate=ssl.CERT_NONE, version=ssl.PROTOCOL_TLSv1_2)
+        tls_configuration = Tls(validate=ssl.CERT_NONE,
+                                version=ssl.PROTOCOL_TLSv1_2)
 
         # CSE LDAP Server Configuration
         ldap_servers = [
@@ -87,25 +105,30 @@ class UserHomePageView(LoginRequiredMixin, View):
         # Fetch CSE LDAP Details of the user
         for ldap_server in ldap_servers:
             try:
-                server = ldap3.Server(ldap_server, port=ldap_port, tls=tls_configuration, get_info=ldap3.ALL)
+                server = ldap3.Server(
+                    ldap_server, port=ldap_port, tls=tls_configuration, get_info=ldap3.ALL)
                 connection = ldap3.Connection(server, auto_bind=True)
 
-                connection.search(search_base=base_dn, search_filter=search_filter, attributes=ldap3.ALL_ATTRIBUTES)
+                connection.search(
+                    search_base=base_dn, search_filter=search_filter, attributes=ldap3.ALL_ATTRIBUTES)
                 if connection.entries:
-                    logger.info(f'Entries({connection.entries}): {len(connection.entries)}')
+                    logger.info(
+                        f'Entries({connection.entries}): {len(connection.entries)}')
 
                     for entry in connection.entries:
                         logger.info(f'Entry: {entry}')
                         cse_ldap_details = entry.entry_attributes_as_dict
                         logger.info(f'Entry Attributes: {cse_ldap_details}')
                 else:
-                    logger.info("User not found in LDAP on server:", ldap_server)
+                    logger.info(
+                        "User not found in LDAP on server:", ldap_server)
                     connection.unbind()
                     continue
                 connection.unbind()
                 break
             except Exception as e:
-                logger.error(f"Error connecting to server {ldap_server}: {str(e)}")
+                logger.error(
+                    f"Error connecting to server {ldap_server}: {str(e)}")
 
         # Logging LDAP details of the user
         logger.info('-v'*30)
@@ -133,7 +156,8 @@ class UserHomePageView(LoginRequiredMixin, View):
 
         for form_class, context_key, user_attr in form_class_context_key_user_field_tuples:
             try:
-                form = form_class(initial=attr_to_dict(get_attribute(user, user_attr), key=user_attr[-1]))
+                form = form_class(initial=attr_to_dict(
+                    get_attribute(user, user_attr), key=user_attr[-1]))
             except (AttributeError, ObjectDoesNotExist):
                 form = form_class()
             forms_context_dict[context_key] = form
@@ -155,7 +179,7 @@ class UserHomePageView(LoginRequiredMixin, View):
             'cse_ldap_details': cse_ldap_details,
         }
         request_context.update(forms_context_dict)
-
+        logger.info(request_context)
         return render(request, 'user_resources/home.html', request_context)
 
 
@@ -212,7 +236,8 @@ class UpdateInstiAddressView(LoginRequiredMixin, FormErrorPageMixin, View):
 
     def post(self, request):
         user = request.user
-        form = InstituteAddressForm(data=request.POST, instance=self._get_insti_address_instance())
+        form = InstituteAddressForm(
+            data=request.POST, instance=self._get_insti_address_instance())
         if form.is_valid():
             insti_address = form.save(commit=False)
             insti_address.user = user
@@ -239,7 +264,8 @@ class UpdateProgramView(LoginRequiredMixin, FormErrorPageMixin, View):
 
     def post(self, request):
         user = request.user
-        form = ProgramForm(data=request.POST, instance=self._get_program_instance())
+        form = ProgramForm(data=request.POST,
+                           instance=self._get_program_instance())
         if form.is_valid():
             program = form.save(commit=False)
             program.user = user
@@ -254,13 +280,16 @@ class UpdateMobileNumberView(LoginRequiredMixin, View):
         user = request.user
         mobiles = request.POST.getlist('phone')
         mobiles = set([mobile for mobile in mobiles if mobile != ''])
-        saved_mobiles = set([contact.number for contact in user.contacts.all()])
+        saved_mobiles = set(
+            [contact.number for contact in user.contacts.all()])
         mobiles_to_update = mobiles - saved_mobiles
         mobiles_to_delete = saved_mobiles - mobiles
         if mobiles_to_update:
-            ContactNumber.objects.bulk_create([ContactNumber(user=user, number=number) for number in mobiles_to_update])
+            ContactNumber.objects.bulk_create(
+                [ContactNumber(user=user, number=number) for number in mobiles_to_update])
         if mobiles_to_delete:
-            ContactNumber.objects.filter(user=user).filter(number__in=mobiles_to_delete).delete()
+            ContactNumber.objects.filter(user=user).filter(
+                number__in=mobiles_to_delete).delete()
         return redirect('user:home')
 
 
@@ -269,11 +298,14 @@ class UpdateSecondaryEmailView(LoginRequiredMixin, View):
         user = request.user
         emails = request.POST.getlist('email')
         emails = set([email for email in emails if email != ''])
-        saved_emails = set([secondary_email.email for secondary_email in user.secondary_emails.all()])
+        saved_emails = set(
+            [secondary_email.email for secondary_email in user.secondary_emails.all()])
         emails_to_update = emails - saved_emails
         emails_to_delete = saved_emails - emails
         if emails_to_update:
-            SecondaryEmail.objects.bulk_create([SecondaryEmail(user=user, email=email) for email in emails_to_update])
+            SecondaryEmail.objects.bulk_create(
+                [SecondaryEmail(user=user, email=email) for email in emails_to_update])
         if emails_to_delete:
-            SecondaryEmail.objects.filter(user=user).filter(email__in=emails_to_delete).delete()
+            SecondaryEmail.objects.filter(user=user).filter(
+                email__in=emails_to_delete).delete()
         return redirect('user:home')

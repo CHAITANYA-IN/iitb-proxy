@@ -26,7 +26,7 @@ from django.urls import path
 from django.contrib import admin
 from django.views.static import serve
 
-import account.urls
+import account_handler.urls
 import application.urls
 import resources.urls
 import user_resource.urls
@@ -34,6 +34,7 @@ import widget.urls
 import internal.urls
 
 from .views import DocView, IndexView
+from .views import authorize, token_exchange
 
 urlpatterns = [
     path('', IndexView.as_view(), name='index'),
@@ -42,7 +43,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('oauth/', include((application.urls, 'oauth'), namespace='oauth')),
     path('oauth/', include((oauth2_provider.urls, 'oauth2_provider'), namespace='oauth2_provider')),
-    path('account/', include((account.urls, 'account'), namespace='account')),
+    path('oidc/authorize/', authorize, name='authorize'),
+    path('oidc/token_exchange/', token_exchange, name='token_exchange'),
+    path('account/', include((account_handler.urls, 'account'), namespace='account')),
     path('user/', include((user_resource.urls, 'user'), namespace='user')),
     path('resources/', include((resources.urls, 'resources'), namespace='resources')),
     path('internal/', include((internal.urls, 'internal'), namespace='internal')),
@@ -50,7 +53,7 @@ urlpatterns = [
 ]
 
 # Fail safe! If nginx is down, this might come handy.
-#urlpatterns += [
+# urlpatterns += [
 #    url(r'^%s(?P<path>.*)$' % re.escape(settings.STATIC_URL.lstrip('/')), serve,
 #        kwargs={
 #            'document_root': settings.STATIC_ROOT,
@@ -61,4 +64,4 @@ urlpatterns = [
 #            'document_root': settings.MEDIA_ROOT,
 #        }
 #        ),
-#]
+# ]
