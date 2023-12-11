@@ -32,3 +32,18 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+@python_2_unicode_compatible
+class CSEProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    cse_first_name = models.CharField(max_length=255)
+    cse_last_name = models.CharField(max_length=255)
+    cse_email = models.EmailField()
+    cse_employee_type = models.CharField(max_length=255)
+    cse_username = models.CharField(max_length=255)
+    cse_role = models.CharField(max_length=255)
+    _history_ = HistoricalRecords()
+
+    def __str__(self):
+        return f"{self.cse_username}"

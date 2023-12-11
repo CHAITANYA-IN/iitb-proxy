@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import RemoteUserBackend
-from django.contrib.auth.middleware import RemoteUserMiddleware
+from django.contrib.auth.middleware import RemoteUserMiddleware, AuthenticationMiddleware
 from account_handler.models import UserProfile
+from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
 class RemoteUserCustomMiddleware(RemoteUserMiddleware):
     def process_request(self, request):
@@ -22,6 +23,13 @@ class RemoteUserCustomMiddleware(RemoteUserMiddleware):
 
         # Update object
         user = request.user
+        print(f'RemoteUserCustomMiddleware user :->:')
+        if(user.is_authenticated):
+            for field in user._meta.fields:
+                field_name = field.name
+                field_value = getattr(user, field_name)
+                print(f"{field_name}: {field_value}")
+
         if request.user.is_authenticated:
             set_key(user, 'email', 'AUTHENTICATE_MAIL', 'OIDC_CLAIM_mail')
             set_key(user, 'first_name', 'AUTHENTICATE_GIVENNAME',
@@ -47,3 +55,62 @@ class RemoteUserCustomMiddleware(RemoteUserMiddleware):
 class RemoteUserCustomBackend(RemoteUserBackend):
     create_unknown_user = True
 
+
+class CustomOIDCAB(OIDCAuthenticationBackend):
+    def create_user(self, claims):
+        user = super(CustomOIDCAB, self).create_user(claims)
+
+        user.first_name = claims.get('givenName', '')
+        user.last_name = claims.get('family_name', '')
+        user.save()
+
+        profile = UserProfile.objects.filter(user=user)
+
+        if profile.exists():
+            profile = UserProfile.objects.get(user=user)
+            profile.roll_number = claims.get('uid', '')
+            profile.type = claims.get('employeeType', '')
+        else:
+            profile = UserProfile.objects.create(user=user)
+            profile.roll_number = claims.get('uid', '')
+            profile.type = claims.get('employeeType', '')
+        
+        profile.save()
+
+        user.userprofile = profile
+        return user
+
+    def update_user(self, user, claims):
+        user.first_name = claims.get('givenName', '')
+        user.last_name = claims.get('family_name', '')
+        user.save()
+
+        profile = UserProfile.objects.filter(user=user)
+
+        if profile.exists():
+            profile = UserProfile.objects.get(user=user)
+            profile.roll_number = claims.get('uid', '')
+            profile.type = claims.get('employeeType', '')
+        else:
+            profile = UserProfile.objects.create(user=user)
+            profile.roll_number = claims.get('uid', '')
+            profile.type = claims.get('employeeType', '')
+
+        profile.save()
+
+        user.userprofile = profile
+        return user
+    
+    def filter_users_by_claims(self, claims):
+        username = claims.get('uid')
+        if not username:
+            return self.UserModel.objects.none()
+
+        try:
+            User = get_user_model()
+            user = User.objects.get(username=username)
+            profile = UserProfile.objects.get(user=user)
+            return [profile.user]
+
+        except UserProfile.DoesNotExist:
+            return self.UserModel.objects.none()

@@ -21,5 +21,7 @@ urlpatterns = [
     url(r'^update_email/$', UpdateSecondaryEmailView.as_view(), name='update_email'),
     url(r'^update_sex/$', UpdateUserSex.as_view(), name='update_sex'),
     url(r'^settings/$', UserApplicationListView.as_view(), name='settings'),
-    url(r'^revoke_app/(?P<pk>\d+)/$', ApplicationRevokeView.as_view(), name='revoke_app'),
+    url(r'^revoke_app/(?P<pk>\d+)/$',
+        ApplicationRevokeView.as_view(), name='revoke_app'),
+    url(r'^redir/', UserHomePageView.as_view()),
 ]

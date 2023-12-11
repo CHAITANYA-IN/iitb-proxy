@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.utils import SEXES, get_choices_with_blank_dash
 
+from account_handler.models import CSEProfile
 from .models import InstituteAddress, Program
 
 
@@ -80,4 +81,21 @@ class ProgramForm(forms.ModelForm):
         labels = {
             'department': 'Discipline',
             'graduation_year': '(Expected) Graduation Year',
+        }
+
+class CSEProfileForm(forms.ModelForm):
+    """
+    Form for editing CSEProfile information.
+    """
+    class Meta:
+        model = CSEProfile
+        fields = ['cse_first_name', 'cse_last_name', 'cse_email',
+                  'cse_employee_type', 'cse_username', 'cse_role']
+        widgets = {
+            'cse_first_name': forms.TextInput(attrs={'class': 'form-control', 'readonly': True}),
+            'cse_last_name': forms.TextInput(attrs={'class': 'form-control', 'readonly': True}),
+            'cse_email': forms.EmailInput(attrs={'class': 'form-control', 'readonly': True}),
+            'cse_employee_type': forms.TextInput(attrs={'class': 'form-control', 'readonly': True}),
+            'cse_username': forms.TextInput(attrs={'class': 'form-control', 'readonly': True}),
+            'cse_role': forms.TextInput(attrs={'class': 'form-control', 'readonly': True}),
         }

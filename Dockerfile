@@ -16,7 +16,7 @@ RUN ln /usr/bin/python3 /usr/bin/python
 #RUN apt install -y python3.9-distutils
 #RUN python3.9 get-pip.py
 #RUN apt-get install -y python-venv
-RUN apt-get install -y apache2-dev
+RUN apt-get install -y apache2-dev libsasl2-dev
 ADD ./www/ldap-oauth2/requirements.txt /tmp/env.txt
 #RUN apt-get -y install python3-pip
 #RUN ln -sf usr/bin/pip3 /usr/bin/pip
@@ -27,6 +27,7 @@ RUN apt-get -y install python3-pip
 #RUN virtualenv venv
 RUN  pip install django
 #RUN venv/bin/activate
+RUN echo 2+2
 RUN pip install -r /tmp/env.txt
 RUN pip install ptvsd
 RUN pip install https://github.com/GrahamDumpleton/mod_wsgi/archive/develop.zip

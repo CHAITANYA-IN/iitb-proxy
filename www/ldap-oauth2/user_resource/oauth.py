@@ -14,6 +14,12 @@ USER_FIELDS = [
     'insti_address',
     'mobile',
     'roll_number',
+    'cse_first_name',
+    'cse_last_name',
+    'cse_email',
+    'cse_employee_type',
+    'cse_username',
+    'cse_role',
 ]
 
 SCOPE_TO_FIELD_MAP = {
@@ -27,4 +33,12 @@ SCOPE_TO_FIELD_MAP = {
     'program': ['program', 'roll_number', ],
     'secondary_emails': ['secondary_emails', ],
     'send_mail': [],
+    'cse': [
+        'cse_first_name',
+        'cse_last_name',
+        'cse_email',
+        'cse_employee_type',
+        'cse_username',
+        'cse_role',
+    ],
 }

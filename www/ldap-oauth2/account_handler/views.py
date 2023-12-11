@@ -41,20 +41,22 @@ class LoginView(SensitivePostParametersMixin, View):
         if not request.META['SCRIPT_NAME']:
             set_script_prefix('/')
 
-        uhome = request.build_absolute_uri(reverse('user:home'))
-        endpoint = uhome + 'redir'
-        current_url = request.resolver_match.url_name
+        uhome = request.build_absolute_uri(
+            reverse('user:home'))  # http://localhost:8000/user/
+        endpoint = uhome # + 'redir'  # http://localhost:8000/user/redir
+        current_url = request.resolver_match.url_name  # login
 
-        logger.debug('GET current_url: %s', current_url)
-        logger.debug('GET endpoint: %s', endpoint)
-        logger.debug('GET uhome: %s', uhome)
-
-        return render(request, self.template_name, {
+        context = {
             'form': self.form_class,
-            'usso_url': endpoint + '?' + urlencode({'logout': request.build_absolute_uri(uhome)}),
+            'usso_url': request.build_absolute_uri(reverse('oidc_authentication_init')), # endpoint + '?' + urlencode({'logout': request.build_absolute_uri(uhome)}),
             'usso_base': settings.USSO_BASE,
             'usso_widget': settings.USSO_RU,
-        })
+        }
+        for i, j in context.items():
+            print(f'{i}: {j}')
+            logger.debug('GET /login context: %s', f'{i}: {j}')
+
+        return render(request, self.template_name, context)
 
     def post(self, request):
         next_ = request.GET.get('next', settings.LOGIN_REDIRECT_URL)
@@ -67,7 +69,7 @@ class LogoutView(View):
         logger.debug('GET request: %s', request)
         logout(request)
         logger.debug('Logged user out')
-        usso_redir = reverse('user:home') + 'redir?'
+        usso_redir = reverse('user:home') + '?' # 'redir?'
         logger.debug('GET usso_redir: %s', usso_redir)
         next_ = request.GET.get('next')
         login_url = reverse('account:login')

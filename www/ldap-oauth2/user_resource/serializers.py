@@ -3,6 +3,7 @@ import copy
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
+from account_handler.models import CSEProfile
 from .models import ContactNumber, InstituteAddress, Program, SecondaryEmail
 from .oauth import DEFAULT_FIELDS, USER_FIELDS
 
@@ -50,6 +51,12 @@ class UserSerializer(serializers.ModelSerializer):
     secondary_emails = SecondaryEmailSerializer(many=True)
     contacts = ContactNumberSerializer(many=True)
     insti_address = InstituteAddressSerializer()
+    cse_first_name = serializers.CharField(source='cse_profile.cse_first_name')
+    cse_last_name = serializers.CharField(source='cse_profile.cse_last_name')
+    cse_email = serializers.CharField(source='cse_profile.cse_email')
+    cse_employee_type = serializers.CharField(source='cse_profile.cse_employee_type')
+    cse_username = serializers.CharField(source='cse_profile.cse_username')
+    cse_role = serializers.CharField(source='cse_profile.cse_role')
     mobile = serializers.CharField(source='userprofile.mobile')
     roll_number = serializers.CharField(source='userprofile.roll_number')
     profile_picture = serializers.ImageField(source='userprofile.profile_picture')

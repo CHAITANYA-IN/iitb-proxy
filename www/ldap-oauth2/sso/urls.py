@@ -27,6 +27,8 @@ from django.contrib import admin
 from django.views.static import serve
 
 import account_handler.urls
+# import app.urls
+# import mozilla_django_oidc.urls
 import application.urls
 import resources.urls
 import user_resource.urls
@@ -34,7 +36,7 @@ import widget.urls
 import internal.urls
 
 from .views import DocView, IndexView
-from .views import authorize, token_exchange
+# from .views import authorize, token_exchange
 
 urlpatterns = [
     path('', IndexView.as_view(), name='index'),
@@ -42,9 +44,12 @@ urlpatterns = [
     url(r'^doc/(?P<tab>[\w-]+\w+)/$', DocView.as_view(), name='doc'),
     path('admin/', admin.site.urls),
     path('oauth/', include((application.urls, 'oauth'), namespace='oauth')),
-    path('oauth/', include((oauth2_provider.urls, 'oauth2_provider'), namespace='oauth2_provider')),
-    path('oidc/authorize/', authorize, name='authorize'),
-    path('oidc/token_exchange/', token_exchange, name='token_exchange'),
+    path('oauth/', include((oauth2_provider.urls,
+         'oauth2_provider'), namespace='oauth2_provider')),
+    # path('oidc/authorize/', authorize, name='authorize'),
+    # path('oidc/token_exchange/', token_exchange, name='token_exchange'),
+    # path('oidc/', include('app.urls')),
+    path('oidc/', include('mozilla_django_oidc.urls')),
     path('account/', include((account_handler.urls, 'account'), namespace='account')),
     path('user/', include((user_resource.urls, 'user'), namespace='user')),
     path('resources/', include((resources.urls, 'resources'), namespace='resources')),

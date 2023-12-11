@@ -1,4 +1,5 @@
-import ldap3, ssl
+import ldap3
+import ssl
 from ldap3.core.tls import Tls
 
 import logging
@@ -15,15 +16,19 @@ from oauth2_provider.models import get_application_model as get_oauth2_applicati
 from oauth2_provider.models import AccessToken, RefreshToken, Grant
 from oauth2_provider.settings import oauth2_settings
 from rest_framework.fields import get_attribute
+from django.contrib.auth import get_user_model
 
 from core.mixins import FormErrorPageMixin
 from core.templatetags.model_media import model_field_media_url
 from core.utils import attr_to_dict
 
-from ..forms import InstituteAddressForm, ProfilePictureForm, ProgramForm, SexUpdateForm
+from account_handler.models import CSEProfile
+from django_auth_ldap.backend import LDAPBackend
+from ..forms import InstituteAddressForm, ProfilePictureForm, ProgramForm, SexUpdateForm, CSEProfileForm
 from ..models import ContactNumber, InstituteAddress, Program, SecondaryEmail
 
 logger = logging.getLogger(__name__)
+
 
 class UserApplicationListView(LoginRequiredMixin, ListView):
     template_name = 'user_resources/application_list.html'
@@ -31,7 +36,8 @@ class UserApplicationListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        access_tokens = AccessToken.objects.filter(user=user).prefetch_related('application')
+        access_tokens = AccessToken.objects.filter(
+            user=user).prefetch_related('application')
 
         application_scope_dict = defaultdict(set)
 
@@ -61,7 +67,14 @@ class ApplicationRevokeView(LoginRequiredMixin, View):
 
 class UserHomePageView(LoginRequiredMixin, View):
     def get(self, request):
+        # if not request.user.is_authenticated:
+        #     return redirect('oidc:oidc_authentication_init')
         user = request.user
+        print("User :->: ")
+        for field in user._meta.fields:
+            field_name = field.name
+            field_value = getattr(user, field_name)
+            print(f"{field_name}: {field_value}")
 
         # cse_ldap_details = {}
         # logger.info(f"{'-'*10}Authenticating CSE User {user.username}{'-'*10}")
@@ -78,6 +91,17 @@ class UserHomePageView(LoginRequiredMixin, View):
 
         #     logger.info('')
         #     logger.info('-^'*30)
+
+        # try:
+        #     User = get_user_model()
+        #     user = User.objects.get(username=user.username)
+        #     profile = CSEProfile.objects.get(user=user)
+        #     user.cse_profile = profile
+        # except CSEProfile.DoesNotExist:
+        #     print(type(user.username), user.username)
+        #     profile = LDAPBackend().authenticate(request, user.username, '')
+        #     print("CSE LDAP Authentication: ", profile)
+        #     user.cse_profile = profile
 
         # Search filter for CSE LDAP
         try:
@@ -152,6 +176,7 @@ class UserHomePageView(LoginRequiredMixin, View):
             [InstituteAddressForm, 'insti_address_form', ('insti_address',)],
             [ProgramForm, 'program_form', ('program',)],
             [SexUpdateForm, 'sex_update_form', ('userprofile', 'sex',)],
+            [CSEProfileForm, 'cse_profile_form', ('cse_profile',)],
         ]
 
         for form_class, context_key, user_attr in form_class_context_key_user_field_tuples:
@@ -168,6 +193,7 @@ class UserHomePageView(LoginRequiredMixin, View):
         gpo_email = user.email
         ldap_number = user_profile.mobile
         roll_number = user_profile.roll_number
+        # cse_profile = user.cse_profile
 
         request_context = {
             'mobile_numbers': mobile_numbers,
@@ -176,6 +202,7 @@ class UserHomePageView(LoginRequiredMixin, View):
             'ldap_number': ldap_number,
             'roll_number': roll_number,
             'user_profile_picture': model_field_media_url(user.userprofile.profile_picture),
+            # 'cse_profile': cse_profile,
             'cse_ldap_details': cse_ldap_details,
         }
         request_context.update(forms_context_dict)

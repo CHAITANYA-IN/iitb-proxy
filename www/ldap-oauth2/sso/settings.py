@@ -35,6 +35,7 @@ CACHES = {
 
 # Authentication Backends
 AUTHENTICATION_BACKENDS = (
+    'sso.rauth.CustomOIDCAB',
     'sso.rauth.RemoteUserCustomBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
@@ -55,18 +56,22 @@ INSTALLED_APPS = (
     'core',
     'widget',
     'ldap3',
+    'mozilla_django_oidc',
+    'django_auth_ldap',
 )
 
 MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'mozilla_django_oidc.middleware.SessionRefresh',
     'sso.rauth.RemoteUserCustomMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'sso.middleware.RequestPrintOutMiddleware',
 )
 
 ROOT_URLCONF = 'sso.urls'
@@ -251,6 +256,10 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        'mozilla_django_oidc': {
+            'handlers': ['console'],
+            'level': 'DEBUG'
+        },
     },
 
 }
@@ -268,5 +277,5 @@ USSO_RU = True
 VERIFIED_NOTIF_EMAIL = ['akg@iitb.ac.in']
 
 from .settings_user import *  # noqa isort:skip
-# from .cse_ldap_settings import *
 from .oidc_settings import *
+from .cse_ldap_settings import *
